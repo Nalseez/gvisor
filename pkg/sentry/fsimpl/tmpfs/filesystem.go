@@ -555,15 +555,11 @@ func (fs *filesystem) RmdirAt(ctx context.Context, rp *vfs.ResolvingPath) error 
 func (fs *filesystem) SetStatAt(ctx context.Context, rp *vfs.ResolvingPath, opts vfs.SetStatOptions) error {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
-	_, err := resolveLocked(rp)
+	d, err := resolveLocked(rp)
 	if err != nil {
 		return err
 	}
-	if opts.Stat.Mask == 0 {
-		return nil
-	}
-	// TODO: implement inode.setStat
-	return syserror.EPERM
+	return d.inode.setStat(opts.Stat)
 }
 
 // StatAt implements vfs.FilesystemImpl.StatAt.
